@@ -5,6 +5,7 @@ export class PollService {
   private POLL_KEY_PREFIX = "poll:";
 
   private getPollKey(pollId: string) {
+    if (pollId.startsWith("poll_")) return pollId;
     return `${this.POLL_KEY_PREFIX}${pollId}`;
   }
 
