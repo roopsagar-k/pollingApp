@@ -5,8 +5,9 @@ export class PollService {
   private POLL_KEY_PREFIX = "poll:";
 
   private getPollKey(pollId: string) {
-    if (pollId.startsWith("poll_")) return pollId;
-    return `${this.POLL_KEY_PREFIX}${pollId}`;
+    // if (pollId.startsWith("poll_")) return pollId;
+    // return `${this.POLL_KEY_PREFIX}${pollId}`;
+    return pollId;
   }
 
   async createPoll(teacherSocketId: string): Promise<Poll> {
@@ -48,14 +49,10 @@ export class PollService {
 
   async getAllPolls(): Promise<Poll[]> {
     const ids = await redis.lRange("pollHistory", 0, -1);
-    console.log("ids from lrange", ids)
-    const polls: Poll[] = [];
-    for (const id of ids) {
-      const poll = await this.getPoll(id);
-      if (poll) polls.push(poll);
-    }
-    console.log("sending polls to client", polls)
-    return polls;
+    const polls = await Promise.all(
+      ids.map((id) => redis.get(id).then((p) => (p ? JSON.parse(p) : null)))
+    );
+    return polls.filter(Boolean) as Poll[];
   }
 
   async addStudentToCurrentPoll(socketId: string, name: string) {
