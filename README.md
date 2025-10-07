@@ -29,7 +29,6 @@ A real-time polling application that allows users (such as teachers and students
 - **Express** (HTTP server)
 - **Socket.IO** (WebSocket server for live updates)
 - **Redis** (for pub/sub and caching, enables scalable real-time event handling)
-- **dotenv** (environment variable management)
 
 #### Main Features
 
@@ -113,13 +112,7 @@ Backend expects:
 - `SOCKET_PORT` (default: 3000)
 - `REDIS_URL` (default: redis://localhost:6379)
 
-## Contributing
 
-Feel free to open issues and submit pull requests for new features, bug fixes, or improvements!
-
-## License
-
-MIT
 
 ---
 
