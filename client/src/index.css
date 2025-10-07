@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #5b51d8;
+  --color-muted: #6E6E6E;
+  --color-background: #F2F2F2;
+}
+
+@layer base {
+  .primary-gradient {
+    @apply bg-gradient-to-r from-[#7765DA] via-[#5767D0] to-[#4F0DCE];
+  }
+}
