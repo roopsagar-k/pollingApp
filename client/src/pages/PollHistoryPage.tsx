@@ -25,7 +25,10 @@ export const PollHistoryPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getPastPolls((p) => setPolls(p as unknown as BackendPoll[]));
+    getPastPolls((p) => {
+      const polls = p as BackendPoll[];
+      setPolls(polls);
+    });
   }, [getPastPolls]);
 
   const questions = useMemo(() => {

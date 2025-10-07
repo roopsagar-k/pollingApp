@@ -47,11 +47,13 @@ export class PollService {
 
   async getAllPolls(): Promise<Poll[]> {
     const ids = await redis.lRange("pollHistory", 0, -1);
+    console.log("ids from lrange", ids)
     const polls: Poll[] = [];
     for (const id of ids) {
       const poll = await this.getPoll(id);
       if (poll) polls.push(poll);
     }
+    console.log("sending polls to client", polls)
     return polls;
   }
 
