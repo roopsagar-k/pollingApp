@@ -1,22 +1,22 @@
 import redis from "../utils/redis";
 import { Poll, Option, Question } from "../types";
+import cuid from "cuid";
 
 export class PollService {
   private POLL_KEY_PREFIX = "poll:";
 
   private getPollKey(pollId: string) {
-    // if (pollId.startsWith("poll_")) return pollId;
-    // return `${this.POLL_KEY_PREFIX}${pollId}`;
-    return pollId;
+    return `${this.POLL_KEY_PREFIX}${pollId}`;
   }
 
   async createPoll(teacherSocketId: string): Promise<Poll> {
-    const id = `poll_${Date.now()}`;
+    const id = `poll_${cuid()}`;
     const poll: Poll = {
       id,
       teacherSocketId,
-      students: [], // Student[] with socketId & name
+      students: [],
       currentQuestion: null,
+      questions: [], // Store question history
       createdAt: Date.now(),
     };
 
@@ -42,17 +42,22 @@ export class PollService {
     const current = await this.getCurrentPoll();
     if (!current) return false;
     if (current.teacherSocketId !== socketId) return false;
-    await redis.del(this.getPollKey(current.id));
+
+    // DON'T delete poll data - just clear currentPoll reference
     await redis.del("currentPoll");
     return true;
   }
 
   async getAllPolls(): Promise<Poll[]> {
     const ids = await redis.lRange("pollHistory", 0, -1);
-    const polls = await Promise.all(
-      ids.map((id) => redis.get(id).then((p) => (p ? JSON.parse(p) : null)))
-    );
-    return polls.filter(Boolean) as Poll[];
+    console.log("ids from lrange", ids);
+    const polls: Poll[] = [];
+    for (const id of ids) {
+      const poll = await this.getPoll(id);
+      if (poll) polls.push(poll);
+    }
+    console.log("sending polls to client", polls);
+    return polls;
   }
 
   async addStudentToCurrentPoll(socketId: string, name: string) {
@@ -76,10 +81,16 @@ export class PollService {
     const poll = await this.getPoll(pollId);
     if (!poll) return null;
 
+    // Archive the previous question before setting a new one
+    if (poll.currentQuestion) {
+      if (!poll.questions) poll.questions = [];
+      poll.questions.push(poll.currentQuestion);
+    }
+
     const question: Question = {
       text,
       options,
-      answers: {}, // { socketId: { name, answer } }
+      answers: {},
       createdAt: Date.now(),
       duration,
       isActive: true,

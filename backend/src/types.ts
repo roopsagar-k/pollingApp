@@ -22,5 +22,6 @@ export interface Poll {
   teacherSocketId: string;
   students: Student[]; // changed from string[] to Student[]
   currentQuestion: Question | null;
+  questions?: Question[];
   createdAt: number;
 }
