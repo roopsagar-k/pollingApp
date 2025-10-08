@@ -187,6 +187,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
       setCurrentQuestion(null);
       setResults(null);
       pendingStudentNameRef.current = null;
+      setJoinedPollId(null);
       if (locationRef.current.pathname !== "/") {
         navigate("/?error=teacher-left", { replace: true });
       }
