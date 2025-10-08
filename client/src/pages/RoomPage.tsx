@@ -128,7 +128,7 @@ const TeacherCreatePoll: React.FC<{ onAsked?: () => void }> = ({ onAsked }) => {
     label: `${s} seconds`,
   }));
 
-  const maxQuestionLength = 100;
+  const maxQuestionLength = 200;
   const isAskDisabled =
     question.trim().length === 0 ||
     options.some((opt) => opt.text.trim().length === 0);
