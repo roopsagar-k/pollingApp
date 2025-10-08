@@ -4,7 +4,7 @@ import { Eye, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useSocket } from "@/context/socketContext";
-import { ChatPanel } from "./shared/ChatPanel";
+import { ChatPanel } from "./ChatPanel";
 
 interface TeacherResultsProps {
   question: Question;

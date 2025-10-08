@@ -122,6 +122,13 @@ export const registerPollHandlers = (io: Server, socket: Socket) => {
     io.to(socketId).emit("kicked");
   });
 
+  socket.on("kick_everyone_out", async () => {
+    const currentPoll = await pollService.getCurrentPoll();
+    if(!currentPoll) return;
+    await pollService.clearPoll();
+    io.to(currentPoll.id).emit("kicked_everyone")
+  });
+
   socket.on("disconnect", async () => {
     console.log(`Socket ${socket.id} disconnected`);
     const cleared = await pollService.clearCurrentPollIfTeacher(socket.id);

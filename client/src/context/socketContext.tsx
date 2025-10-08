@@ -10,6 +10,7 @@ import { io, Socket } from "socket.io-client";
 import type { Option, PollResults, Question, PollSummary } from "@/lib/types";
 import { useAppDispatch } from "@/hooks/hooks";
 import { tick } from "@/slices/timerSlice";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -34,6 +35,8 @@ interface SocketContextType {
   chat: { socketId: string; message: string; timestamp: number }[];
   participants: { socketId: string; name: string }[];
   noActivePoll: boolean;
+  pendingStudentName: string | null;
+  setNoActivePoll: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const SocketContext = createContext<SocketContextType>({
@@ -55,6 +58,8 @@ const SocketContext = createContext<SocketContextType>({
   chat: [],
   participants: [],
   noActivePoll: false,
+  pendingStudentName: null,
+  setNoActivePoll: () => {},
 });
 
 interface SocketProviderProps {
@@ -82,6 +87,13 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
   const intervalRef = useRef<number | null>(null);
   const dispatch = useAppDispatch();
   const pendingStudentNameRef = useRef<string | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const locationRef = useRef(location);
+
+  useEffect(() => {
+    locationRef.current = location;
+  }, [location]);
 
   useEffect(() => {
     const newSocket = io(serverUrl, { transports: ["websocket"] });
@@ -161,7 +173,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
     });
 
     newSocket.on("kicked", () => {
-      window.location.href = "/";
+      navigate("/kick-out");
     });
 
     newSocket.on("poll_cleared", () => {
@@ -170,6 +182,15 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
       setResults(null);
     });
 
+    newSocket.on("kicked_everyone", () => {
+      setNoActivePoll(true);
+      setCurrentQuestion(null);
+      setResults(null);
+      pendingStudentNameRef.current = null;
+      if (locationRef.current.pathname !== "/") {
+        navigate("/?error=teacher-left", { replace: true });
+      }
+    });
     return () => {
       newSocket.disconnect();
     };
@@ -252,6 +273,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({
         chat,
         participants,
         noActivePoll,
+        pendingStudentName: pendingStudentNameRef.current,
+        setNoActivePoll,
       }}
     >
       {children}

@@ -5,7 +5,7 @@ import type { Question } from "@/lib/types";
 import { useAppSelector } from "@/hooks/hooks";
 import { Timer } from "./timer";
 import { useSocket } from "@/context/socketContext";
-import { ChatPanel } from "./shared/ChatPanel";
+import { ChatPanel } from "./ChatPanel";
 
 export const QuestionView: React.FC<{ currQuestion: Question }> = ({
   currQuestion,
@@ -63,7 +63,6 @@ export const QuestionView: React.FC<{ currQuestion: Question }> = ({
   return (
     <div className="min-h-screen pt-10 bg-[--color-background]">
       <div className="max-w-2xl mx-auto p-4">
-      
         <div className="flex items-center mb-6 space-x-4">
           <h1 className="text-xl font-bold text-gray-900">Question 1</h1>
           <Timer />
@@ -144,7 +143,9 @@ export const QuestionView: React.FC<{ currQuestion: Question }> = ({
                 })}
               </div>
             </div>
-            <div className="font-bold text-2xl py-4 text-center">Wait for the teacher to ask a new question</div>
+            <div className="font-bold text-2xl py-4 text-center">
+              Wait for the teacher to ask a new question
+            </div>
           </div>
         )}
 

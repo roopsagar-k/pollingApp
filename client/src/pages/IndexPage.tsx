@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 import { useSocket } from "@/context/socketContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 interface RoleCardProps {
   title: string;
@@ -34,11 +34,32 @@ const RoleCard: React.FC<RoleCardProps> = ({
 };
 
 export const IndexPage: React.FC = () => {
-  const [selectedRole, setSelectedRole] = React.useState<
+  const [selectedRole, setSelectedRole] = useState<
     "student" | "teacher" | null
   >(null);
   const { createPoll } = useSocket();
   const navigate = useNavigate();
+  const { pendingStudentName, setNoActivePoll, socket } = useSocket();
+  const [searchParams] = useSearchParams();
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+   useEffect(() => {
+     const errorParam = searchParams.get("error");
+     if (errorParam === "teacher-left") {
+       setErrorMsg(
+         "The teacher disconnected from the room — you’ve been removed."
+       );
+       setNoActivePoll(true);
+       socket?.emit("kick_everyone_out");
+     }
+   }, [searchParams, socket, setNoActivePoll]);
+
+  useEffect(() => {
+    if (!pendingStudentName) {
+      setNoActivePoll(true);
+      socket?.emit("kick_everyone_out");
+    }
+  }, []);
 
   const handleContinue = () => {
     if (selectedRole) {
@@ -55,6 +76,12 @@ export const IndexPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-5xl py-20 px-8 flex flex-col items-center">
+        {errorMsg && (
+          <div className="mb-6 w-full max-w-md p-4 bg-red-100 text-red-700 border border-red-300 rounded-lg text-center">
+            {errorMsg}
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-10 text-center">
           <span className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-full bg-gradient-to-r from-[#7765DA] via-[#5767D0] to-[#4F0DCE] text-white shadow-md mb-4">

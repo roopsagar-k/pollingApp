@@ -43,7 +43,6 @@ export class PollService {
     if (!current) return false;
     if (current.teacherSocketId !== socketId) return false;
 
-    // DON'T delete poll data - just clear currentPoll reference
     await redis.del("currentPoll");
     return true;
   }
@@ -143,5 +142,10 @@ export class PollService {
     poll.students = poll.students.filter((s) => s.socketId !== socketId);
     await redis.set(this.getPollKey(pollId), JSON.stringify(poll));
     return poll;
+  }
+
+  async clearPoll() {
+    await redis.del("currentPoll");
+    return true;
   }
 }
