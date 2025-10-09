@@ -38,7 +38,7 @@ A real-time polling application that allows users (such as teachers and students
 
 ## Database
 
-- **Redis**: Used for caching and fast, scalable pub/sub event handling. The backend connects to Redis (default: `redis://localhost:6379`), which is essential for scaling socket events and quick state access.
+- **Redis**: Used for persistant storage. The backend connects to Redis (default: `redis://localhost:6379`), which is essential for scaling socket events and quick state access.
 
 ## Global State Management
 
